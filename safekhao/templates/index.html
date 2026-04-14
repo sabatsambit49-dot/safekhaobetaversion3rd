@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>SafeKhao — Food Safety Companion</title>
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<!-- SIDEBAR (desktop) -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 22 22" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M11 2C7.5 2 4.5 4.7 4.5 8c0 4.5 6.5 12 6.5 12s6.5-7.5 6.5-12c0-3.3-3-6-6-6z"/>
+        <circle cx="11" cy="8" r="2.2"/>
+      </svg>
+    </div>
+    <div class="logo-name">Safe<span>Khao</span></div>
+  </div>
+  <div class="sidebar-sub">India's Food Safety Companion</div>
+  <nav class="sidebar-nav">
+    <button class="nav-btn active" data-tab="scan" onclick="goTab('scan')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="5" height="5" rx="1"/><rect x="16" y="3" width="5" height="5" rx="1"/><rect x="3" y="16" width="5" height="5" rx="1"/><path d="M16 16h5v5M16 21h5M21 16v5M9 3h2M12 3v6M3 12h2M6 12v6M9 12h3v3"/></svg>
+      <span>Scan</span>
+    </button>
+    <button class="nav-btn" data-tab="browse" onclick="goTab('browse')">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg>
+      <span>Browse</span>
+    </button>
+    <button class="nav-btn" data-tab="ai" onclick="goTab('ai')">
+      <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/><circle cx="19" cy="5" r="3"/></svg>
+      <span>AI Analyse</span>
+      <span class="nav-badge">AI</span>
+    </button>
+    <button class="nav-btn" data-tab="health" onclick="goTab('health')">
+      <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      <span>My Health</span>
+    </button>
+    <button class="nav-btn" data-tab="compare" onclick="goTab('compare')">
+      <svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+      <span>Compare</span>
+    </button>
+    <button class="nav-btn" data-tab="database" onclick="goTab('database')">
+      <svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4.03 3 9 3s9-1.34 9-3"/></svg>
+      <span>Database</span>
+    </button>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="db-pill" id="db-pill">
+      <span class="db-dot" id="db-dot"></span>
+      <span id="db-pill-text">Connecting...</span>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main-wrap">
+
+  <!-- MOBILE HEADER -->
+  <header class="mobile-header">
+    <div class="mobile-logo">Safe<span>Khao</span></div>
+    <div class="db-pill small" id="db-pill-mobile"><span class="db-dot" id="db-dot-mobile"></span><span id="db-pill-mobile-text">...</span></div>
+  </header>
+
+  <!-- ── SCAN ── -->
+  <div id="tab-scan" class="tab active">
+    <div class="page-head"><h1>Scan Product</h1><p>Camera scan or enter barcode to check safety</p></div>
+    <div class="scan-layout">
+      <div class="scan-col">
+        <button class="cam-btn" onclick="openCamera()">
+          <div class="cam-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+          <div><div class="cam-btn-label">Open Camera Scanner</div><div class="cam-btn-sub">Works on phone & desktop</div></div>
+        </button>
+        <div class="or-line"><span>or enter barcode manually</span></div>
+        <div class="bc-row">
+          <input id="bc-input" class="bc-input" type="text" placeholder="e.g. 8901491502233" oninput="bcLookup(this.value)">
+          <button class="btn-primary" onclick="bcLookup(document.getElementById('bc-input').value,true)">Look up</button>
+        </div>
+        <div id="scan-result" class="scan-result-card" style="display:none"></div>
+      </div>
+      <div class="scan-col">
+        <div class="sec-head"><h2>Recently Scanned</h2></div>
+        <div id="recent-list" class="card-col">
+          <div class="empty-msg"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><p>Scan a product to start</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── BROWSE ── -->
+  <div id="tab-browse" class="tab">
+    <div class="page-head"><h1>Browse Products</h1><p id="browse-count">Loading...</p></div>
+    <div class="browse-bar">
+      <div class="search-wrap"><svg viewBox="0 0 20 20"><circle cx="9" cy="9" r="6"/><path d="m15 15 3 3"/></svg><input id="search-in" placeholder="Search name or brand..." oninput="renderBrowse()"></div>
+      <select id="risk-filter" class="sel" onchange="renderBrowse()"><option value="">All risk levels</option><option value="ok">Safe</option><option value="low">Low risk</option><option value="medium">Moderate</option><option value="high">High risk</option></select>
+    </div>
+    <div class="chip-row" id="cat-chips"></div>
+    <div id="browse-grid" class="product-grid"></div>
+  </div>
+
+  <!-- ── AI ANALYSE ── -->
+  <div id="tab-ai" class="tab">
+    <div class="page-head">
+      <h1>AI Food Analyser</h1>
+      <p>Unknown product? Let <strong>Groq AI</strong> (Llama 3.3 70B) analyse and save it to your database</p>
+    </div>
+    <div class="ai-layout">
+      <div class="ai-form-col">
+        <div class="ai-form-card">
+          <div class="ai-form-title">Enter product details</div>
+          <div class="form-field"><label>Barcode *</label><input id="ai-barcode" class="inp" placeholder="Scan or type barcode"></div>
+          <div class="form-row-2">
+            <div class="form-field"><label>Product Name</label><input id="ai-name" class="inp" placeholder="e.g. Parle Monaco"></div>
+            <div class="form-field"><label>Brand</label><input id="ai-brand" class="inp" placeholder="e.g. Parle"></div>
+          </div>
+          <div class="form-field">
+            <label>Ingredient list (copy from package)</label>
+            <textarea id="ai-ingredients" class="inp ta" rows="6" placeholder="Paste the full ingredient list from the back of the package here...&#10;e.g. Wheat flour, Sugar, Edible vegetable oil (palm), Salt, Raising agents (INS 503ii, INS 500ii)..."></textarea>
+          </div>
+          <div class="form-field">
+            <label>Or upload package photo</label>
+            <div class="upload-box" onclick="document.getElementById('ai-image').click()" id="upload-box">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <span id="upload-label">Click to upload image of product/ingredients</span>
+              <input type="file" id="ai-image" accept="image/*" style="display:none" onchange="handleImageUpload(this)">
+            </div>
+          </div>
+          <button class="btn-ai" id="ai-analyse-btn" onclick="runAIAnalysis()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+            Analyse with AI
+          </button>
+          <div id="ai-status" class="ai-status" style="display:none"></div>
+        </div>
+        <div class="ai-info-card">
+          <div class="ai-info-title">How it works</div>
+          <div class="ai-info-step"><span class="step-num">1</span><span>Enter or scan the barcode</span></div>
+          <div class="ai-info-step"><span class="step-num">2</span><span>Paste ingredient list or upload a photo of the package</span></div>
+          <div class="ai-info-step"><span class="step-num">3</span><span>Groq AI (Llama 3.3 70B) analyses every ingredient for safety risks — completely free</span></div>
+          <div class="ai-info-step"><span class="step-num">4</span><span>Result is saved to your local database automatically</span></div>
+        </div>
+      </div>
+      <div class="ai-result-col">
+        <div id="ai-result-area">
+          <div class="ai-placeholder">
+            <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="32" cy="32" r="28"/><path d="M32 20v14M32 42h.01"/></svg>
+            <p>AI analysis results will appear here</p>
+            <p class="ai-placeholder-sub">Enter product details and click Analyse</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── HEALTH ── -->
+  <div id="tab-health" class="tab">
+    <div class="page-head"><h1>My Health</h1><p>Track your food consumption patterns</p></div>
+    <div class="health-stats-grid">
+      <div class="grade-card"><div class="grade-lbl">Health Grade</div><div class="grade-val" id="h-grade">A+</div><div class="grade-sub">This session</div></div>
+      <div class="stat-card"><div class="stat-val" id="h-total">0</div><div class="stat-lbl">Scanned</div></div>
+      <div class="stat-card danger"><div class="stat-val" id="h-high">0</div><div class="stat-lbl">High risk</div></div>
+      <div class="stat-card safe"><div class="stat-val" id="h-safe">0</div><div class="stat-lbl">Safe picks</div></div>
+    </div>
+    <div id="h-alerts"></div>
+    <div id="h-future-wrap" style="display:none">
+      <div class="sec-head" style="margin-top:24px"><h2>Future Health Risks</h2><span class="sec-sub">if current habits continue</span></div>
+      <div class="future-grid" id="h-future"></div>
+    </div>
+    <div id="h-history-wrap" style="display:none;margin-top:24px">
+      <div class="sec-head"><h2>Scan History</h2></div>
+      <div class="card-col" id="h-history"></div>
+    </div>
+  </div>
+
+  <!-- ── COMPARE ── -->
+  <div id="tab-compare" class="tab">
+    <div class="page-head"><h1>Compare Products</h1><p>Side-by-side safety comparison of any two products</p></div>
+    <div class="cmp-selects">
+      <div class="sel-wrap"><label>Product A</label><select id="cmp-a" class="sel"></select></div>
+      <div class="vs-chip">VS</div>
+      <div class="sel-wrap"><label>Product B</label><select id="cmp-b" class="sel"></select></div>
+    </div>
+    <button class="btn-primary btn-full" onclick="doCompare()">Compare Now</button>
+    <div id="cmp-out"></div>
+  </div>
+
+  <!-- ── DATABASE ── -->
+  <div id="tab-database" class="tab">
+    <div class="page-head"><h1>Product Database</h1><p>Local SQLite database — all data stored on your device</p></div>
+    <div class="db-stats-grid">
+      <div class="db-stat"><div class="db-stat-val" id="dbs-total">0</div><div class="db-stat-lbl">Total products</div></div>
+      <div class="db-stat"><div class="db-stat-val" id="dbs-scans">0</div><div class="db-stat-lbl">Scans logged</div></div>
+      <div class="db-stat"><div class="db-stat-val ai-col" id="dbs-ai">0</div><div class="db-stat-lbl">AI analysed</div></div>
+    </div>
+    <div class="db-actions">
+      <button class="btn-primary" onclick="exportDB()">Export JSON</button>
+      <button class="btn-outline" onclick="toggleAddForm()">+ Add Product</button>
+      <button class="btn-outline danger" onclick="confirmClearScans()">Clear Scans</button>
+    </div>
+    <div id="add-form" class="add-form" style="display:none">
+      <div class="add-form-title">Add New Product</div>
+      <div class="form-row-2">
+        <div class="form-field"><label>Product Name *</label><input id="nf-name" class="inp" placeholder="e.g. Parle Monaco"></div>
+        <div class="form-field"><label>Brand *</label><input id="nf-brand" class="inp" placeholder="e.g. Parle"></div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-field"><label>Barcode *</label><input id="nf-barcode" class="inp" placeholder="13-digit EAN barcode"></div>
+        <div class="form-field"><label>Category</label>
+          <select id="nf-cat" class="sel">
+            <option>Biscuit</option><option>Chips</option><option>Beverage</option><option>Noodles</option>
+            <option>Dairy</option><option>Snack</option><option>Chocolate</option><option>Cereals</option>
+            <option>Namkeen</option><option>Condiment</option><option>Ready Meal</option><option>Staple</option>
+            <option>Oil</option><option>Candy</option><option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-field"><label>Risk Level</label>
+          <select id="nf-risk" class="sel"><option value="ok">Safe</option><option value="low">Low risk</option><option value="medium" selected>Moderate</option><option value="high">High risk</option></select>
+        </div>
+        <div class="form-field"><label>Risk Score (0–100)</label><input id="nf-score" class="inp" type="number" min="0" max="100" placeholder="0-100"></div>
+      </div>
+      <div class="form-field"><label>Ingredients (one per line: Name|ok/low/medium/high|note)</label><textarea id="nf-ingredients" class="inp ta" rows="5" placeholder="Sugar|medium|High glycemic index&#10;Palm Oil|medium|Saturated fat&#10;Salt|ok|"></textarea></div>
+      <div class="form-field"><label>Warnings (one per line)</label><textarea id="nf-warnings" class="inp ta" rows="3" placeholder="High sodium content&#10;Contains artificial colours"></textarea></div>
+      <div class="form-btns">
+        <button class="btn-primary" onclick="submitAddProduct()">Save to Database</button>
+        <button class="btn-outline" onclick="toggleAddForm()">Cancel</button>
+      </div>
+    </div>
+    <div class="sec-head" style="margin-top:24px"><h2>All Products</h2><span class="sec-sub" id="db-product-count"></span></div>
+    <div id="db-list" class="db-list"></div>
+  </div>
+
+</div><!-- end main-wrap -->
+
+<!-- BOTTOM NAV (mobile) -->
+<nav class="bottom-nav">
+  <button class="bnav active" data-tab="scan" onclick="goTab('scan')">
+    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="5" height="5" rx="1"/><rect x="16" y="3" width="5" height="5" rx="1"/><rect x="3" y="16" width="5" height="5" rx="1"/><path d="M16 16h5v5M16 21h5M21 16v5M9 3h2M12 3v6M3 12h2M6 12v6M9 12h3v3"/></svg>
+    <span>Scan</span>
+  </button>
+  <button class="bnav" data-tab="browse" onclick="goTab('browse')">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg>
+    <span>Browse</span>
+  </button>
+  <button class="bnav" data-tab="ai" onclick="goTab('ai')">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+    <span>AI</span>
+  </button>
+  <button class="bnav" data-tab="health" onclick="goTab('health')">
+    <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+    <span>Health</span>
+  </button>
+  <button class="bnav" data-tab="database" onclick="goTab('database')">
+    <svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4.03 3 9 3s9-1.34 9-3"/></svg>
+    <span>DB</span>
+  </button>
+</nav>
+
+<!-- CAMERA MODAL -->
+<div id="cam-modal" class="cam-modal">
+  <div class="cam-top">
+    <span class="cam-title">Scan Barcode</span>
+    <button class="cam-close" onclick="closeCamera()"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" fill="none"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+  </div>
+  <div class="cam-body">
+    <video id="cam-video" autoplay playsinline muted></video>
+    <canvas id="cam-canvas" style="display:none"></canvas>
+    <div class="cam-ui">
+      <div class="cam-frame">
+        <i class="cf cf-tl"></i><i class="cf cf-tr"></i><i class="cf cf-bl"></i><i class="cf cf-br"></i>
+        <div class="cam-laser"></div>
+      </div>
+      <p class="cam-hint">Align barcode within the frame</p>
+    </div>
+    <div id="cam-result-overlay" class="cam-result-overlay">
+      <div id="cam-result-sheet" class="cam-result-sheet"></div>
+    </div>
+  </div>
+  <div class="cam-bottom">
+    <p id="cam-status" class="cam-status">Initializing camera...</p>
+    <button class="btn-ghost" onclick="closeCamera()">Cancel</button>
+  </div>
+</div>
+
+<!-- PRODUCT DETAIL MODAL -->
+<div id="detail-overlay" class="overlay" onclick="closeDetail(event)">
+  <div class="detail-sheet">
+    <div class="sheet-handle"></div>
+    <div id="detail-body" class="detail-body"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="/static/js/app.js"></script>
+</body>
+</html>
